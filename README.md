@@ -2,12 +2,16 @@
 
 Quark/gluon jet modeling notebooks for three complementary tasks:
 
-1. `task1`: sparse jet image reconstruction with convolutional autoencoders
-2. `task2`: quark-vs-gluon classification with graphs and GraphSAGE
-3. `task3`: jet reconstruction with a denoising diffusion model
+1. `task1`: Please train an auto-encoder to learn the representation based on three image channels (ECAL, HCAL and Tracks) for the dataset. Please show a side-by-side comparison of original and reconstructed events.
+
+2. `task2`: Please choose a graph-based GNN model of your choice to classify (quark/gluon) jets.
+ Convert the images into a point cloud dataset by only considering the non-zero pixels for every event.
+ Cast the point cloud data into a graph representation by coming up with suitable representations for nodes and edges. Train your model on the obtained graph representations of the jet events.
+  Discuss the resulting performance of the chosen architecture.
+
+3. `task3`: Use a Diffusion Network model to represent the events in task 1. Please show a side-by-side comparison of the original and reconstructed events and an appropriate evaluation metric of your choice that estimates the difference between the two.
 
 ## Repository Layout
-
 ```text
 task1/
   task1 .ipynb
@@ -45,7 +49,7 @@ This notebook studies sparse calorimeter jet images and reconstructs them with t
 - Explores class balance, `pt`, `m0`, and channel sparsity
 - Trains a baseline autoencoder with plain `MSELoss`
 - Trains an improved autoencoder with log normalization, padding `125x125 -> 128x128`, and weighted reconstruction loss
-- Compares original and reconstructed detector channels
+- Compares original and reconstructed detector channels side by side across ECAL, HCAL, and Tracks
 
 ### Metrics
 
@@ -65,7 +69,6 @@ Key takeaway:
 
 ### Visualizations
 
-- Mean jet images and dataset statistics inside the notebook
 - Original vs reconstructed channels: `HCAL`, `ECAL`, `Tracks`
 - Training vs validation loss curve for the improved autoencoder
 
@@ -90,10 +93,11 @@ This notebook converts sparse jet images into graphs and trains a graph neural n
 
 ### What The Notebook Does
 
-- Converts jet images to sparse point clouds
-- Builds kNN graphs with up to 400 nodes per jet
+- Converts jet images to sparse point clouds by extracting only non-zero pixels
+- Builds kNN graphs with up to 400 nodes per jet, where each node carries `[x_norm, y_norm, intensity, channel]` as features
 - Trains a GraphSAGE classifier using `BCEWithLogitsLoss`
 - Evaluates classification quality with ROC-AUC, confusion matrix, and loss curves
+- Discusses the performance of the GraphSAGE architecture on the quark/gluon separation task
 
 ### Metrics
 
@@ -125,7 +129,7 @@ Notebook observation:
 
 Notebook: [task3/task3 .ipynb](task3/task3%20.ipynb)
 
-This notebook implements a denoising diffusion probabilistic model for jet-image reconstruction.
+This notebook implements a denoising diffusion probabilistic model for jet-image reconstruction and shows a side-by-side comparison of original and reconstructed events with quantitative evaluation metrics.
 
 ### Core Functions And Classes
 
@@ -144,8 +148,8 @@ This notebook implements a denoising diffusion probabilistic model for jet-image
 
 - Preprocesses the same jet images used in Task 1
 - Trains a U-Net noise predictor with a linear beta schedule
-- Reconstructs jets by reverse denoising
-- Evaluates the final reconstructions with pixel and structural metrics
+- Reconstructs jets by reverse denoising and shows a side-by-side comparison of original vs reconstructed events across all three detector channels
+- Evaluates the final reconstructions with MSE and SSIM as quantitative difference metrics
 
 ### Metrics
 
@@ -175,8 +179,8 @@ Final reconstruction metrics:
 
 ## Summary
 
-| Task | Objective | Main Model | Main Metrics |
+| Task | Original Task Description | Main Model | Main Metrics |
 |---|---|---|---|
-| Task 1 | Sparse jet image reconstruction | Convolutional autoencoder | Best val loss `0.001054` |
-| Task 2 | Quark/gluon classification | GraphSAGE on kNN jet graphs | ROC-AUC `0.7912` |
-| Task 3 | Jet reconstruction from noise | DDPM with U-Net backbone | MSE `0.000024`, SSIM `0.740122` |
+| Task 1 | Train an autoencoder on ECAL, HCAL, Tracks channels and show original vs reconstructed events | Convolutional autoencoder | Best val loss `0.001054` |
+| Task 2 | Classify quark/gluon jets with a graph-based GNN using point clouds from non-zero pixels | GraphSAGE on kNN jet graphs | ROC-AUC `0.7912` |
+| Task 3 | Use a diffusion network to reconstruct jet events with side-by-side comparison and evaluation metric | DDPM with U-Net backbone | MSE `0.000024`, SSIM `0.740122` |
